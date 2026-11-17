@@ -63,6 +63,13 @@ ADDRELEASEPARS = -O3
 ADDDEBUGPARS = -g
 # 		Additional libraries parameters
 ADDLIBS = -pthread -lncurses -lsystemd -lhidapi-hidraw
+# 		Optional version from arg or git
+ifndef VERSION
+VERSION := $(shell command -v git >/dev/null 2>&1 && git describe --tags --dirty --always)
+endif
+ifneq ($(strip $(VERSION)),)
+ADDPARS += -DVERSION=\"$(VERSION)\"
+endif
 
 #	Install
 
