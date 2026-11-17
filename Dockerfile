@@ -4,11 +4,11 @@ FROM ghcr.io/pkgforge-dev/archlinux AS build-stage
 # Prepare build dependencies
 RUN pacman -Syu --noconfirm make gcc git hidapi
 
-# Prepare AppImage Build dependencies
+# Prepare release dependencies
 ARG ANYLINUX_URL=https://github.com/pkgforge-dev/Anylinux-AppImages/raw/refs/heads/main/useful-tools
 RUN <<EOR
   set -eu
-  pacman -Syu --noconfirm patchelf xorg-server-xvfb
+  pacman -Syu --noconfirm patchelf xorg-server-xvfb zip
   curl -fsSL "${ANYLINUX_URL}/quick-sharun.sh" | install /dev/stdin /usr/local/bin/quick-sharun.sh
 EOR
 
@@ -21,7 +21,7 @@ WORKDIR /work
 RUN <<EOR
   set -eu
 
-  make
+  make createpkg
 
   arch=$(uname -m)
   export APPNAME
@@ -37,4 +37,4 @@ EOR
 
 # Keep only files required for runtime
 FROM scratch AS export-stage
-COPY --from=build-stage /appimage /
+COPY --from=build-stage /work/pkgbin/SteamDeckGyroDSUSetup.zip /work/pkg/update-sdgyrodsu.desktop /appimage /
